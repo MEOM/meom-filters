@@ -7,7 +7,6 @@ import { addQueryArgs } from '@wordpress/url';
 
 /* Import internal depedencies. */
 import loadMoreMarkup from './loadMoreMarkup';
-import changePrice from './changePrice';
 
 /**
  * Fetch data based on args.
@@ -37,10 +36,12 @@ function fetchPosts(args, append = false) {
     // Animations.
     filtersItems.classList.add('is-loading');
 
+    // Start showing spinner.
     if (spinner) {
         spinner.removeAttribute('hidden');
     }
 
+    // Fetch the data based on args.
     fetch(addQueryArgs('/wp-json/wp_query/args/', args))
         .then(function (response) {
             // The API call was succesful.
@@ -79,11 +80,13 @@ function fetchPosts(args, append = false) {
             if (append) {
                 filtersItems.innerHTML += markup;
             } else {
+                // Reset content first.
                 filtersItems.innerHTML = '';
 
                 filtersItems.innerHTML = markup;
             }
 
+            // End animation and hide the spinner.
             filtersItems.classList.remove('is-loading');
             if (spinner) {
                 spinner.setAttribute('hidden', '');
@@ -95,9 +98,6 @@ function fetchPosts(args, append = false) {
                 : data.messages.empty;
 
             speak(announceText);
-
-            // Change price based on location.
-            changePrice();
         })
         .catch(function (err) {
             // There was an error.
