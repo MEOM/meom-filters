@@ -1,0 +1,20 @@
+{
+    "name": "meom/meom-filters",
+    "version": "1.0",
+    "description": "Filters functionality",
+    "type": "wordpress-muplugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "MEOM tech",
+            "email": "tech@meom.fi"
+        }
+    ],
+    "require": {
+        "aucor/wp_query-route-to-rest-api": "dev-master"
+    },
+    "require-dev": {
+        "meom/phpcs-composer": "dev-main"
+    },
+    "minimum-stability": "dev"
+}

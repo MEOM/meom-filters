@@ -1,0 +1,48 @@
+.filters__items {
+    position: relative;
+}
+
+.filters-items__content {
+    transition: opacity 0.3s;
+
+    &.is-loading {
+        opacity: 0.35;
+    }
+}
+
+.filters-items__load-more[hidden],
+.no-js .filters-items__load-more {
+    display: none;
+}
+
+// Spinner.
+.filters__spinner {
+    position: absolute;
+    left: calc(50% - 1rem);
+    width: 100%;
+    z-index: 20;
+}
+
+.filters__spinner-icon {
+    height: 2rem;
+    width: 2rem;
+}
+
+.filters__spinner-circle {
+    animation: spinning-circle 2s linear infinite;
+    stroke: #111;
+}
+
+@keyframes spinning-circle {
+    0% {
+        stroke-dasharray: 150.6 100.4;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 1 250;
+    }
+    100% {
+        stroke-dasharray: 150.6 100.4;
+        stroke-dashoffset: 502;
+    }
+}
