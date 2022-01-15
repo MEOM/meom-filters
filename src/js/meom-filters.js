@@ -22,9 +22,6 @@ const filters = () => {
         return;
     }
 
-    // Filter order form.
-    const filtersOrder = document.querySelector('.js-filters-order');
-
     // Search field.
     const searchField = document.querySelector('.js-filters-search-field');
 
@@ -86,7 +83,7 @@ const filters = () => {
         // Reset urlObject first.
         urlObject = {};
 
-        // Query for ``post` post type.
+        // Query for `post` post type.
         if (postType === 'post') {
             // Add tax_query if we have checked checkboxes.
             // Get all category checked checkboxes.
@@ -223,11 +220,6 @@ const filters = () => {
 
         // Do the fetch.
         handleFetch(false);
-    }
-
-    // Listen change events in filters order form.
-    if (filtersOrder) {
-        filtersOrder.addEventListener('change', handleChange, false);
     }
 
     // Listen change and submit events on filters form.
