@@ -39,9 +39,11 @@ This saves a little bit of time when same markup can be used in PHP and in JS fi
 
 First, check `inc/filters.php` file. 
 
+### Default data
 From `default_data` you might want to change `empty` message.
 
-Second, locate code:
+### Change template file used in JS filtering
+Locate code:
 ```php
 // Build logic for this where you pull your HTML markup.
 // Can be any post type and any template file.
