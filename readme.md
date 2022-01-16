@@ -1,6 +1,6 @@
 # MEOM filters
 
-Note: this is **not** a plug and play WordPress plugin which you can just download and active.
+Note: this is **not** a plug and play WordPress plugin which you can just download and activate.
 
 This is more like a starting point for filtering and searching any post types in WordPress. As a starting point check
 
