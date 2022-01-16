@@ -14,8 +14,8 @@ import fetchPosts from './helpers/fetchPosts';
  * Filters.
  */
 const filters = () => {
-    // Filters terms form.
-    const filtersTerms = document.querySelector('.js-filters-terms');
+    // Filters form.
+    const filtersTerms = document.querySelector('[data-meom-filters="form"]');
 
     // Bail if there is no filters nor markup wrapper.
     if (!filtersTerms) {
@@ -23,10 +23,10 @@ const filters = () => {
     }
 
     // Search field.
-    const searchField = document.querySelector('.js-filters-search-field');
+    const searchField = document.querySelector('[data-meom-filters="search"]');
 
     // Load more button.
-    const loadMore = document.querySelector('.js-filters-items-load-more');
+    const loadMore = document.querySelector('[data-meom-filters="load-more"]');
 
     // All checkboxes.
     const allCheckboxes = filtersTerms.querySelectorAll(
@@ -40,7 +40,7 @@ const filters = () => {
     );
 
     const allCategoryCheckboxes = filtersTerms.querySelectorAll(
-        'input[type="checkbox"].js-filters-tax-category'
+        'input[type="checkbox"][data-meom-filters="tax-category"]'
     );
 
     // Post type to query.
@@ -88,7 +88,7 @@ const filters = () => {
             // Add tax_query if we have checked checkboxes.
             // Get all category checked checkboxes.
             const allCategories = getCheckedCheckboxes(
-                'input[type="checkbox"].js-filters-tax-category'
+                'input[type="checkbox"][data-meom-filters="tax-category"]'
             );
 
             const allCategoriesLength = allCategories.length;
@@ -105,14 +105,21 @@ const filters = () => {
 
             // Handle order.
             const orderSelect = document.querySelector(
-                '.js-filters-order-select'
+                '[data-meom-filters="order"]'
             );
             if (orderSelect) {
                 // Order value.
                 const orderValue = orderSelect.value;
 
                 // Latest first.
+                if (orderValue === 'newest-first') {
+                    args.orderby = 'date';
+                    args.order = 'DESC';
+                }
+
+                // Oldest first.
                 if (orderValue === 'oldest-first') {
+                    args.orderby = 'date';
                     args.order = 'ASC';
                 }
 
@@ -209,7 +216,7 @@ const filters = () => {
             // Select correct order.
             if (getStateFromUrl.order) {
                 const selectOrder = document.querySelector(
-                    `.js-filters-order-select option[value="${getStateFromUrl.order}"]`
+                    `[data-meom-filters="order"] option[value="${getStateFromUrl.order}"]`
                 );
 
                 if (selectOrder) {
