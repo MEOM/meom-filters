@@ -16,7 +16,9 @@ import loadMoreMarkup from './loadMoreMarkup';
  */
 function fetchPosts(args, append = false) {
     // Where to populate markup.
-    const filtersItems = document.querySelector('.js-filters-items-content');
+    const filtersItems = document.querySelector(
+        '[data-meom-filters="items-content"]'
+    );
 
     // Bail if there is no filters nor markup wrapper.
     if (!filtersItems) {
@@ -24,10 +26,10 @@ function fetchPosts(args, append = false) {
     }
 
     // Spinner.
-    const spinner = document.querySelector('.js-filters-spinner');
+    const spinner = document.querySelector('[data-meom-filters="spinner"]');
 
     // Load more button.
-    const loadMore = document.querySelector('.js-filters-items-load-more');
+    const loadMore = document.querySelector('[data-meom-filters="load-more"]');
 
     if (!args) {
         return;
@@ -59,9 +61,11 @@ function fetchPosts(args, append = false) {
 
                 // And to HTML.
                 const countWrapper = document.querySelector(
-                    '.js-filters-submit-count'
+                    '[data-meom-filters="submit-count"]'
                 );
-                countWrapper.innerHTML = ` (${count})`;
+                if (countWrapper) {
+                    countWrapper.innerHTML = ` (${count})`;
+                }
 
                 // Handle load more button visibility.
                 loadMoreMarkup(pages, loadMore, args);
