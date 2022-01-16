@@ -29,6 +29,38 @@ Recommended method installing `WP_Query Route To REST API` plugin is using compo
 
 Recommended method is install those NPM modules in your project.
 
+## General logic
+
+General logic of MEOM filters is returning `HTML` from the REST queries. Which means we can use same template files as in PHP.
+
+This saves a little bit of time when same markup can be used in PHP and in JS filtering logic.
+
+## How to start modifying
+
+First, check `inc/filters.php` file. 
+
+From `default_data` you might want to change `empty` message.
+
+Locate code:
+```php
+// Build logic for this where you pull your HTML markup.
+// Can be any post type and any template file.
+if ( 'post' === $args['post_type'] ) {
+    get_template_part( 'partials/post/post-item' );
+}
+```
+
+In here change any template file from your theme or add any new post types your are filtering in your project.
+
+For example:
+```php
+if ( 'product' === $args['post_type'] ) {
+    get_template_part( 'partials/post/product-item' );
+} else {
+    get_template_part( 'partials/post/default-item' );
+}
+```
+
 ## Other filtering solutions
 
 [FacetWP](https://facetwp.com/) can be better plug and play solution.
