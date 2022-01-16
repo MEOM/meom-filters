@@ -41,7 +41,7 @@ First, check `inc/filters.php` file.
 
 From `default_data` you might want to change `empty` message.
 
-Locate code:
+Second, locate code:
 ```php
 // Build logic for this where you pull your HTML markup.
 // Can be any post type and any template file.
