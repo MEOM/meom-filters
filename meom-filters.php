@@ -21,4 +21,5 @@ function meom_filters_i18n() {
 }
 add_action( 'plugins_loaded', 'meom_filters_i18n', 2 );
 
+require_once dirname( __FILE__ ) . '/inc/helpers.php';
 require_once dirname( __FILE__ ) . '/inc/filters.php';

@@ -1,0 +1,42 @@
+{
+    "tax_query": [
+        {
+            "taxonomy": "category",
+            "name": "tax-category",
+            "urlKey": "category"
+        },
+        {
+            "taxonomy": "post_tag",
+            "name": "tax-post_tag",
+            "urlKey": "postTag"
+        }
+    ],
+    "meta_query": [],
+    "order": {
+        "name": "order",
+        "urlKey": "orderBy",
+        "options": [
+            {
+                "value": "newest-first",
+                "label": "Newest first",
+                "default": true
+            },
+            {
+                "value": "oldest-first",
+                "label": "Oldest first"
+            },
+            {
+                "value": "title-asc",
+                "label": "By title asc"
+            },
+            {
+                "value": "title-desc",
+                "label": "By title desc"
+            }
+        ]
+    },
+    "search": {
+        "name": "s",
+        "urlKey": "searchBy"
+    }
+}
