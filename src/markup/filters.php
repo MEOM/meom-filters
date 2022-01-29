@@ -2,7 +2,7 @@
 /**
  * Partial for displaying filters.
  *
- * @package Kala
+ * @package MEOMFilters
  */
 ?>
 
@@ -10,18 +10,16 @@
     <h2><?php esc_html_e( 'Filter and search', 'meom-filters' ); ?></h2>
 
     <?php
-    $tax_filters = [
-        'category',
-    ];
+        $config = function_exists( 'MEOMFilters\filters_config' ) ? MEOMFilters\filters_config() : '';
     ?>
 
     <form class="filters__form top-margin animated" data-meom-filters="form">
         <?php
-        foreach ( $tax_filters as $tax_filter ) :
+        foreach ( $config['tax_query'] as $tax_filter ) :
             // Get terms.
             $filter_terms = get_terms(
                 array(
-                    'taxonomy' => $tax_filter,
+                    'taxonomy' => $tax_filter['taxonomy'],
                 )
             );
 
@@ -29,18 +27,20 @@
                 ?>
                 <fieldset class="filters__fieldset">
                     <legend>
-                        <h2 class=""><?php echo esc_html( get_taxonomy( $tax_filter )->label ); ?></h2>
+                        <h2 class=""><?php echo esc_html( get_taxonomy( $tax_filter['taxonomy'] )->label ); ?></h2>
                     </legend>
                     <?php
                     foreach ( $filter_terms as $filter_term ) : ?>
                         <div class="filters__input-wrapper">
                             <input
-                                class="filters__tax-input filters__tax-<?php echo esc_attr( $tax_filter ); ?>"
-                                type="checkbox" id="filter-tax-<?php echo esc_attr( $filter_term->slug ); ?>"
+                                class="filters__tax-input filters__tax-<?php echo esc_attr( $tax_filter['taxonomy'] ); ?>"
+                                type="checkbox"
+                                id="filter-tax-<?php echo esc_attr( $tax_filter['taxonomy'] ); ?>-<?php echo esc_attr( $filter_term->slug ); ?>"
                                 value="<?php echo esc_attr( $filter_term->slug ); ?>"
-                                data-meom-filters="tax-<?php echo esc_attr( $tax_filter ); ?>"
+                                data-meom-filters="tax-<?php echo esc_attr( $tax_filter['taxonomy'] ); ?>"
+                                name="<?php echo esc_attr( $tax_filter['name'] ); ?>"
                                 >
-                            <label class="filters__tax-label" for="filter-tax-<?php echo esc_attr( $filter_term->slug ); ?>">
+                            <label class="filters__tax-label" for="filter-tax-<?php echo esc_attr( $tax_filter['taxonomy'] ); ?>-<?php echo esc_attr( $filter_term->slug ); ?>">
                                 <?php echo esc_attr( $filter_term->name ); ?>
                             </label>
                         </div>
@@ -55,14 +55,13 @@
         <label class="filter__label" for="filters-search">
             <?php echo esc_html_x( 'Search', 'search label', 'meom-filters' ); ?>
         </label>
-        <input class="filters__search-field" type="search" id="filters-search" name="s" data-meom-filters="search">
+        <input class="filters__search-field" type="search" id="filters-search" name="<?php echo esc_attr( $config['search']['name'] ); ?>" data-meom-filters="search">
 
         <label for="filters-order" class="filter__label"><?php esc_html_e( 'Order by', 'meom-filters' ); ?></label>
-        <select class="filters__order" id="filters-order" data-meom-filters="order">
-            <option value="newest-first" selected><?php esc_html_e( 'Newest first', 'meom-filters' ); ?></option>
-            <option value="oldest-first"><?php esc_html_e( 'Oldest first', 'meom-filters' ); ?></option>
-            <option value="title-asc"><?php esc_html_e( 'By title asc', 'meom-filters' ); ?></option>
-            <option value="title-desc"><?php esc_html_e( 'By title desc', 'meom-filters' ); ?></option>
+        <select class="filters__order" id="filters-order" data-meom-filters="order" name="<?php echo esc_attr( $config['order']['name'] ); ?>">
+            <?php foreach ( $config['order']['options'] as $option ) : ?>
+                <option value="<?php echo esc_attr( $option['value'] ); ?>"><?php echo esc_html( $option['label'] ); ?></option>
+            <?php endforeach; ?>
         </select>
 
         <button type="submit" class="filters__submit btn is-style-button-black" data-meom-filters="submit">

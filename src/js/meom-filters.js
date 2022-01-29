@@ -1,4 +1,4 @@
-/* global kalaData, history, location */
+/* global kalaData, history, location, FormData */
 /* eslint-disable @wordpress/no-unused-vars-before-return */
 
 /* Import external depedencies. */
@@ -6,42 +6,24 @@ import { getQueryArgs } from '@wordpress/url';
 
 /* Import internal depedencies. */
 import buildQueryString from './helpers/buildQueryString';
-import getCheckedCheckboxes from './helpers/getCheckedCheckboxes';
-import clearFields from './helpers/clearFields';
 import fetchPosts from './helpers/fetchPosts';
+import serializeForm from './helpers/serializeForm';
+import config from './../../filters-config.json';
 
 /**
  * Filters.
  */
 const filters = () => {
     // Filters form.
-    const filtersTerms = document.querySelector('[data-meom-filters="form"]');
+    const filtersForm = document.querySelector('[data-meom-filters="form"]');
 
     // Bail if there is no filters nor markup wrapper.
-    if (!filtersTerms) {
+    if (!filtersForm) {
         return;
     }
 
-    // Search field.
-    const searchField = document.querySelector('[data-meom-filters="search"]');
-
     // Load more button.
     const loadMore = document.querySelector('[data-meom-filters="load-more"]');
-
-    // All checkboxes.
-    const allCheckboxes = filtersTerms.querySelectorAll(
-        'input[type="checkbox"]'
-    );
-
-    // All input fields.
-    const allInputFields = filtersTerms.querySelectorAll(
-        'input[type="text"]',
-        'input[type="number"]'
-    );
-
-    const allCategoryCheckboxes = filtersTerms.querySelectorAll(
-        'input[type="checkbox"][data-meom-filters="tax-category"]'
-    );
 
     // Post type to query.
     const postType =
@@ -85,69 +67,71 @@ const filters = () => {
 
         // Query for `post` post type.
         if (postType === 'post') {
-            // Add tax_query if we have checked checkboxes.
-            // Get all category checked checkboxes.
-            const allCategories = getCheckedCheckboxes(
-                'input[type="checkbox"][data-meom-filters="tax-category"]'
-            );
+            // Get data from form.
+            const formData = new FormData(filtersForm);
+            const dataValues = serializeForm(formData);
 
-            const allCategoriesLength = allCategories.length;
+            // Loop tax_query from config.
+            const taxQueries = config.tax_query;
+            for (const taxQuery of taxQueries) {
+                if (
+                    dataValues[taxQuery.name] &&
+                    dataValues[taxQuery.name].length > 0
+                ) {
+                    args.tax_query.push({
+                        taxonomy: taxQuery.taxonomy,
+                        field: 'slug',
+                        terms: dataValues[taxQuery.name],
+                    });
 
-            if (allCategoriesLength > 0) {
-                args.tax_query.push({
-                    taxonomy: 'category',
-                    field: 'slug',
-                    terms: allCategories,
-                });
-
-                urlObject.category = allCategories;
+                    // Add URL query parameter.
+                    urlObject[taxQuery.urlKey] = dataValues[taxQuery.name];
+                }
             }
 
             // Handle order.
-            const orderSelect = document.querySelector(
-                '[data-meom-filters="order"]'
-            );
-            if (orderSelect) {
-                // Order value.
-                const orderValue = orderSelect.value;
-
+            const orderName = config.order.name;
+            if (dataValues[orderName]) {
                 // Latest first.
-                if (orderValue === 'newest-first') {
+                if (dataValues[orderName] === 'newest-first') {
                     args.orderby = 'date';
                     args.order = 'DESC';
                 }
 
                 // Oldest first.
-                if (orderValue === 'oldest-first') {
+                if (dataValues[orderName] === 'oldest-first') {
                     args.orderby = 'date';
                     args.order = 'ASC';
                 }
 
                 // By title asc.
-                if (orderValue === 'title-asc') {
+                if (dataValues[orderName] === 'title-asc') {
                     args.orderby = 'post_title';
                     args.order = 'ASC';
                 }
 
                 // By title desc.
-                if (orderValue === 'title-desc') {
+                if (dataValues[orderName] === 'title-desc') {
                     args.orderby = 'post_title';
                     args.order = 'DESC';
                 }
 
                 // Default is the newest, we don't need any order for that.
-                if (orderValue !== 'newest-first') {
-                    urlObject.order = orderValue;
+                if (dataValues[orderName] !== 'newest-first') {
+                    urlObject[config.order.urlKey] = dataValues[orderName];
                 }
             }
-        }
 
-        // Reset args.s before setting new one so that old value is not there.
-        args.s = '';
+            // Reset search (args.s) before setting new one so that old value is not there.
+            args.s = '';
 
-        // Add search if there is value.
-        if (searchField && searchField.value) {
-            args.s = searchField.value;
+            // Add search if there is value.
+            if (dataValues[config.search.name]) {
+                args.s = dataValues[config.search.name];
+
+                urlObject[config.search.urlKey] =
+                    dataValues[config.search.name];
+            }
         }
 
         // Add page number to fetch or reset to back to 1.
@@ -158,7 +142,7 @@ const filters = () => {
         }
 
         // Fetch posts based on args.
-        fetchPosts(args, append);
+        fetchPosts(args, append, filtersForm);
 
         // Build query string if we have urlObject. Else remove query string from the URL.
         const updatedUrl =
@@ -182,6 +166,7 @@ const filters = () => {
 
     /**
      * Handle load more button click.
+     *
      */
     function handleLoadMore() {
         // Do the fetch and append to existing posts.
@@ -193,7 +178,7 @@ const filters = () => {
      */
     function initFilters() {
         // Clear all fields.
-        clearFields(allCheckboxes, allInputFields, searchField);
+        filtersForm.reset();
 
         // Get state from the URL.
         const getStateFromUrl = getQueryArgs(document.location.href);
@@ -201,26 +186,52 @@ const filters = () => {
         // Check all checkboxes which match the URL query vars.
         // This way we can send the link to someone else or refresh the page.
         if (Object.entries(getStateFromUrl).length > 0) {
-            // Check all checkboxes found from category array.
-            if (
-                getStateFromUrl.category &&
-                getStateFromUrl.category.length > 0
-            ) {
-                allCategoryCheckboxes.forEach((checkbox) => {
-                    if (getStateFromUrl.category.includes(checkbox.value)) {
-                        checkbox.checked = true;
-                    }
-                });
+            // Loop tax_query from config.
+            const taxQueries = config.tax_query;
+            for (const taxQuery of taxQueries) {
+                if (
+                    getStateFromUrl[taxQuery.urlKey] &&
+                    getStateFromUrl[taxQuery.urlKey].length > 0
+                ) {
+                    // Get all checkboxes based on name.
+                    const allTaxCheckboxes = filtersForm.querySelectorAll(
+                        `[name="${taxQuery.name}"]`
+                    );
+
+                    // Loop them over and check them if URL query string includes the value.
+                    allTaxCheckboxes.forEach((checkbox) => {
+                        if (
+                            getStateFromUrl[`${taxQuery.urlKey}`].includes(
+                                checkbox.value
+                            )
+                        ) {
+                            checkbox.checked = true;
+                        }
+                    });
+                }
             }
 
             // Select correct order.
-            if (getStateFromUrl.order) {
+            if (getStateFromUrl[config.order.urlKey]) {
                 const selectOrder = document.querySelector(
-                    `[data-meom-filters="order"] option[value="${getStateFromUrl.order}"]`
+                    `[name="${config.order.name}"] option[value="${
+                        getStateFromUrl[config.order.urlKey]
+                    }"]`
                 );
 
                 if (selectOrder) {
                     selectOrder.selected = true;
+                }
+            }
+
+            // Output search value.
+            if (getStateFromUrl[config.search.urlKey]) {
+                const search = document.querySelector(
+                    `[name="${config.search.name}"]`
+                );
+
+                if (search) {
+                    search.value = getStateFromUrl[config.search.urlKey];
                 }
             }
         }
@@ -230,8 +241,8 @@ const filters = () => {
     }
 
     // Listen change and submit events on filters form.
-    filtersTerms.addEventListener('change', handleChange, false);
-    filtersTerms.addEventListener('submit', handleChange, false);
+    filtersForm.addEventListener('change', handleChange, false);
+    filtersForm.addEventListener('submit', handleChange, false);
 
     // Listen load more clicks.
     if (loadMore) {
