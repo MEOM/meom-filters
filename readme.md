@@ -63,19 +63,24 @@ if ( 'product' === $args['post_type'] ) {
 }
 ```
 
+## Config file
+Filters are configured using `filters-config.json` file. This helps parity between HTML markup and JS.
+
+Add any new `tax_query` items. Demo is missing `meta_query` automated logic at the moment.
+
+Search and order examples are provided.
+
 ## How to start modifying markup and JS
 
 - `src/markup/filters.php` file for markup.
 - `src/js/meom-filters.js` file for JS.
 
-In markup there are data attributes `data-meom-filters` which we use in JS. For example
+In markup there are data attributes `data-meom-filters` which we use in JS.
 
 - `data-meom-filters="form"` for filters form.
 - `data-meom-filters="items-content"` where the query results are generated.
 
 Feel free to change this logic using classes if needed.
-
-Search for other `data-meom-filters` attributes to get an idea where they are used in HTML and in JS.
 
 ## General JS logic for filtering
 
@@ -92,29 +97,12 @@ const args = {
 
 In the end these arguments are passed into endpoint using `fetch` JS API. And it returns HTML markup from wanted template file. Remember `inc/filters.php` file mentioned before.
 
-Add any new arguments to `args` object. For example filter by `category`:
-
-```js
-const allCategories = getCheckedCheckboxes(
-    'input[type="checkbox"][data-meom-filters="tax-category"]'
-);
-args.tax_query.push({
-    taxonomy: 'category',
-    field: 'slug',
-    terms: allCategories,
-});
-```
-
-Add any new taxonomy arguments using the same logic.
-
 ### State is in the URL query parameters
 In the same time we add query arguments, we also update object `urlObject`. And update URL query parameters based on this.
 
 This means that you can share the URL or refresh the page, and the query still works.
 
 Check `initFilters` function where we update checkboxes or other fields based on URL. 
-
-Add any new taxonomy checks using the same logic as seen inside the `initFilters` function.
 
 ## Other filtering solutions
 
