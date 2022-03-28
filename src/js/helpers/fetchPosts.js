@@ -1,4 +1,4 @@
-/* global kalaData, fetch */
+/* global fetch */
 /* eslint-disable @wordpress/no-unused-vars-before-return */
 
 /* Import external depedencies. */
@@ -98,7 +98,7 @@ function fetchPosts(args, append = false) {
 
             // Announce screen readers and other AT base info on the fly.
             const announceText = data.html
-                ? kalaData.filtersApplied // From where to translate?
+                ? data.messages.success
                 : data.messages.empty;
 
             speak(announceText);

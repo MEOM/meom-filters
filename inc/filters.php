@@ -18,9 +18,10 @@ namespace MEOMFilters;
 function default_data( $data ) {
     $data = array(
         'html'     => false,
-        'messages' => array(
-            'empty' => esc_html__( 'No results found.', 'meom-filters' ),
-        ),
+        'messages' => [
+            'empty'   => esc_html__( 'No results found.', 'meom-filters' ),
+            'success' => esc_html__( 'Filters applied successfully.', 'meom-filters' ),
+        ],
     );
 
     return $data;
