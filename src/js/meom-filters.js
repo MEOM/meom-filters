@@ -132,6 +132,18 @@ const filters = () => {
                 urlObject[config.search.urlKey] =
                     dataValues[config.search.name];
             }
+
+            // Language code to show right string translations.
+            const languageCode = document.querySelector('input[name=language_code]');
+            if ( languageCode ) {
+                args.language_code = languageCode.value;
+            }
+
+            // Language slug to get items only from current language.
+            const lang = document.querySelector('input[name=lang]');
+            if ( lang ) {
+                args.lang = lang.value;
+            }
         }
 
         // Add page number to fetch or reset to back to 1.

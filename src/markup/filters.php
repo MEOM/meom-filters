@@ -14,7 +14,11 @@
     ?>
 
     <form class="filters__form top-margin animated" data-meom-filters="form">
-        <?php
+        <input type="hidden" name="language_code" value="<?php echo esc_attr( get_locale() ); ?>">
+        <?php if ( function_exists( 'pll_current_language' ) ) : ?>
+            <input type="hidden" name="lang" value="<?php echo pll_current_language(); ?>">
+        <?php endif;
+
         foreach ( $config['tax_query'] as $tax_filter ) :
             // Get terms.
             $filter_terms = get_terms(
