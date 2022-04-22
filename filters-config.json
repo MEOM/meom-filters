@@ -1,39 +1,67 @@
 {
-    "tax_query": [
-        {
-            "taxonomy": "category",
-            "name": "tax-category",
-            "urlKey": "category"
-        },
-        {
-            "taxonomy": "post_tag",
-            "name": "tax-post_tag",
-            "urlKey": "postTag"
-        }
-    ],
-    "meta_query": [],
-    "order": {
-        "name": "order",
-        "urlKey": "orderBy",
-        "options": [
+    "post": {
+        "tax_query": [
             {
-                "value": "newest-first",
-                "label": "Newest first",
-                "default": true
+                "taxonomy": "category",
+                "name": "tax-category",
+                "urlKey": "category"
             },
             {
-                "value": "oldest-first",
-                "label": "Oldest first"
-            },
-            {
-                "value": "title-asc",
-                "label": "By title asc"
-            },
-            {
-                "value": "title-desc",
-                "label": "By title desc"
+                "taxonomy": "post_tag",
+                "name": "tax-post_tag",
+                "urlKey": "postTag"
             }
-        ]
+        ],
+        "meta_query": [],
+        "order": {
+            "name": "order",
+            "urlKey": "orderBy",
+            "options": [
+                {
+                    "value": "newest-first",
+                    "label": "Newest first",
+                    "default": true
+                },
+                {
+                    "value": "oldest-first",
+                    "label": "Oldest first"
+                },
+                {
+                    "value": "title-asc",
+                    "label": "By title asc"
+                },
+                {
+                    "value": "title-desc",
+                    "label": "By title desc"
+                }
+            ]
+        }
+    },
+    "page": {
+        "meta_query": [],
+        "order": {
+            "name": "order",
+            "urlKey": "orderBy",
+            "options": [
+                {
+                    "value": "title-asc",
+                    "label": "By title asc",
+                    "default": true
+                },
+                {
+                    "value": "title-desc",
+                    "label": "By title desc"
+                },
+                {
+                    "value": "newest-first",
+                    "label": "Newest first"
+                },
+                {
+                    "value": "oldest-first",
+                    "label": "Oldest first"
+                }
+            ]
+        }
     },
     "search": {
         "name": "s",
