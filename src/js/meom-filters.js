@@ -201,22 +201,17 @@ const filters = () => {
             // Loop tax_query from config.
             const taxQueries = config.tax_query;
             for (const taxQuery of taxQueries) {
-                if (
-                    getStateFromUrl[taxQuery.urlKey] &&
-                    getStateFromUrl[taxQuery.urlKey].length > 0
-                ) {
+                const statesFromUrl = getStateFromUrl[taxQuery.urlKey];
+                if (statesFromUrl && statesFromUrl.length > 0) {
                     // Get all checkboxes based on name.
                     const allTaxCheckboxes = filtersForm.querySelectorAll(
                         `[name="${taxQuery.name}"]`
                     );
 
-                    // Loop them over and check them if URL query string includes the value.
+                    // Loop them over and check them if URL query parameter array includes the value.
+                    const statesFromUrlValues = statesFromUrl.split(',');
                     allTaxCheckboxes.forEach((checkbox) => {
-                        if (
-                            getStateFromUrl[`${taxQuery.urlKey}`].includes(
-                                checkbox.value
-                            )
-                        ) {
+                        if (statesFromUrlValues.includes(checkbox.value)) {
                             checkbox.checked = true;
                         }
                     });
