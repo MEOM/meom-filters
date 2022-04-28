@@ -66,7 +66,7 @@ if ( 'product' === $args['post_type'] ) {
 ## Config file
 Filters are configured using `filters-config.json` file. This helps parity between HTML markup and JS.
 
-Add new post type keys and inside these new `tax_query` items. Demo is missing `meta_query` automated logic at the moment.
+Add new post type keys, and inside post types new `tax_query` items. Demo is missing `meta_query` automated logic at the moment.
 
 In `filters-config.json` there is `post` and `page` post type examples.
 
