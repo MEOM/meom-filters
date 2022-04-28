@@ -7,6 +7,7 @@ import { getQueryArgs } from '@wordpress/url';
 /* Import internal depedencies. */
 import buildQueryString from './helpers/buildQueryString';
 import fetchPosts from './helpers/fetchPosts';
+import showSelectedFilters from './helpers/showSelectedFilters';
 import serializeForm from './helpers/serializeForm';
 import config from './../../filters-config.json';
 
@@ -211,6 +212,8 @@ const filters = () => {
         // Fetch posts based on args.
         fetchPosts(args, append, filtersForm);
 
+        showSelectedFilters(args);
+
         // Build query string if we have urlObject. Else remove query string from the URL.
         const updatedUrl =
             Object.entries(urlObject).length > 0
@@ -229,6 +232,40 @@ const filters = () => {
     function handleChange(event) {
         event.preventDefault();
         handleFetch(false);
+    }
+
+    /**
+     * Handle selected filter button click.
+     *
+     * @param {Object} event
+     */
+    function handleSelectedFilters(event) {
+        const target = event.target;
+        // Use .closest because there can be SVG inside the button.
+        const removeFilterButton = target.closest(
+            '[data-meom-filters="remove-filter"]'
+        );
+
+        // If the clicked element doesn't have the correct data attribute, bail.
+        if (!removeFilterButton) {
+            return;
+        }
+
+        const key = removeFilterButton.getAttribute('data-meom-filters-key');
+        const value = removeFilterButton.getAttribute(
+            'data-meom-filters-value'
+        );
+
+        const selectedFilter = document.querySelector(
+            'input[data-meom-filters="' + key + '"][value="' + value + '"]'
+        );
+
+        if (selectedFilter) {
+            selectedFilter.checked = false;
+
+            // Do the fetch.
+            handleFetch(false);
+        }
     }
 
     /**
@@ -307,6 +344,9 @@ const filters = () => {
     // Listen change and submit events on filters form.
     filtersForm.addEventListener('change', handleChange, false);
     filtersForm.addEventListener('submit', handleChange, false);
+
+    // Listen remove filter chips click.
+    document.addEventListener('click', handleSelectedFilters, false);
 
     // Listen load more clicks.
     if (loadMore) {
