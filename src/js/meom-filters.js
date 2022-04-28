@@ -71,25 +71,28 @@ const filters = () => {
             const dataValues = serializeForm(formData);
 
             // Loop tax_query from config.
-            const taxQueries = config.post.tax_query;
-            for (const taxQuery of taxQueries) {
-                if (
-                    dataValues[taxQuery.name] &&
-                    dataValues[taxQuery.name].length > 0
-                ) {
-                    args.tax_query.push({
-                        taxonomy: taxQuery.taxonomy,
-                        field: 'slug',
-                        terms: dataValues[taxQuery.name],
-                    });
+            const taxQueries = config[postType].tax_query;
 
-                    // Add URL query parameter.
-                    urlObject[taxQuery.urlKey] = dataValues[taxQuery.name];
+            if (taxQueries) {
+                for (const taxQuery of taxQueries) {
+                    if (
+                        dataValues[taxQuery.name] &&
+                        dataValues[taxQuery.name].length > 0
+                    ) {
+                        args.tax_query.push({
+                            taxonomy: taxQuery.taxonomy,
+                            field: 'slug',
+                            terms: dataValues[taxQuery.name],
+                        });
+
+                        // Add URL query parameter.
+                        urlObject[taxQuery.urlKey] = dataValues[taxQuery.name];
+                    }
                 }
             }
 
             // Handle order.
-            const orderName = config.post.order.name;
+            const orderName = config[postType].order.name;
             if (dataValues[orderName]) {
                 // Latest first.
                 if (dataValues[orderName] === 'newest-first') {
@@ -140,7 +143,7 @@ const filters = () => {
             const dataValues = serializeForm(formData);
 
             // Handle order.
-            const orderName = config.page.order.name;
+            const orderName = config[postType].order.name;
             if (dataValues[orderName]) {
                 // Latest first.
                 if (dataValues[orderName] === 'newest-first') {
@@ -186,14 +189,14 @@ const filters = () => {
 
         // Language code to show right string translations.
         const languageCode = document.querySelector(
-            'input[name=language_code]'
+            'input[name="language_code"]'
         );
         if (languageCode) {
             args.language_code = languageCode.value;
         }
 
         // Language slug to get items only from current language.
-        const lang = document.querySelector('input[name=lang]');
+        const lang = document.querySelector('input[name="lang"]');
         if (lang) {
             args.lang = lang.value;
         }
@@ -249,33 +252,34 @@ const filters = () => {
 
         // Check all checkboxes which match the URL query vars.
         // This way we can send the link to someone else or refresh the page.
-        // In this example we are only providing this for `post` post type.
-        if (Object.entries(getStateFromUrl).length > 0 && postType === 'post') {
+        if (Object.entries(getStateFromUrl).length > 0) {
             // Loop tax_query from config.
-            const taxQueries = config.post.tax_query;
-            for (const taxQuery of taxQueries) {
-                const statesFromUrl = getStateFromUrl[taxQuery.urlKey];
-                if (statesFromUrl && statesFromUrl.length > 0) {
-                    // Get all checkboxes based on name.
-                    const allTaxCheckboxes = filtersForm.querySelectorAll(
-                        `[name="${taxQuery.name}"]`
-                    );
+            const taxQueries = config[postType].tax_query;
+            if (taxQueries) {
+                for (const taxQuery of taxQueries) {
+                    const statesFromUrl = getStateFromUrl[taxQuery.urlKey];
+                    if (statesFromUrl && statesFromUrl.length > 0) {
+                        // Get all checkboxes based on name.
+                        const allTaxCheckboxes = filtersForm.querySelectorAll(
+                            `[name="${taxQuery.name}"]`
+                        );
 
-                    // Loop them over and check them if URL query parameter array includes the value.
-                    const statesFromUrlValues = statesFromUrl.split(',');
-                    allTaxCheckboxes.forEach((checkbox) => {
-                        if (statesFromUrlValues.includes(checkbox.value)) {
-                            checkbox.checked = true;
-                        }
-                    });
+                        // Loop them over and check them if URL query parameter array includes the value.
+                        const statesFromUrlValues = statesFromUrl.split(',');
+                        allTaxCheckboxes.forEach((checkbox) => {
+                            if (statesFromUrlValues.includes(checkbox.value)) {
+                                checkbox.checked = true;
+                            }
+                        });
+                    }
                 }
             }
 
             // Select correct order.
-            if (getStateFromUrl[config.post.order.urlKey]) {
+            if (getStateFromUrl[config[postType].order.urlKey]) {
                 const selectOrder = document.querySelector(
-                    `[name="${config.post.order.name}"] option[value="${
-                        getStateFromUrl[config.post.order.urlKey]
+                    `[name="${config[postType].order.name}"] option[value="${
+                        getStateFromUrl[config[postType].order.urlKey]
                     }"]`
                 );
 
