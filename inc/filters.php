@@ -55,6 +55,8 @@ function modify_data( $data, $wp_query, $args ) {
             // Can be any post type and any template file.
             if ( 'post' === $args['post_type'] ) {
                 get_template_part( 'partials/post/post-item' );
+            } elseif ( 'page' === $args['post_type'] ) {
+                get_template_part( 'partials/post/post-item' );
             }
         }
 

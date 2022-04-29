@@ -1,4 +1,4 @@
-/* global kalaData, history, location, FormData */
+/* global history, location, FormData */
 /* eslint-disable @wordpress/no-unused-vars-before-return */
 
 /* Import external depedencies. */
@@ -25,11 +25,10 @@ const filters = () => {
     // Load more button.
     const loadMore = document.querySelector('[data-meom-filters="load-more"]');
 
-    // Post type to query.
-    const postType =
-        typeof kalaData !== 'undefined' && kalaData.postType
-            ? kalaData.postType
-            : 'post';
+    // Post type from data attribute `data-meom-filters-post-type`.
+    const postType = filtersForm.getAttribute('data-meom-filters-post-type')
+        ? filtersForm.getAttribute('data-meom-filters-post-type')
+        : 'post';
 
     // Default filter arguments.
     const args = {
@@ -72,25 +71,28 @@ const filters = () => {
             const dataValues = serializeForm(formData);
 
             // Loop tax_query from config.
-            const taxQueries = config.tax_query;
-            for (const taxQuery of taxQueries) {
-                if (
-                    dataValues[taxQuery.name] &&
-                    dataValues[taxQuery.name].length > 0
-                ) {
-                    args.tax_query.push({
-                        taxonomy: taxQuery.taxonomy,
-                        field: 'slug',
-                        terms: dataValues[taxQuery.name],
-                    });
+            const taxQueries = config[postType].tax_query;
 
-                    // Add URL query parameter.
-                    urlObject[taxQuery.urlKey] = dataValues[taxQuery.name];
+            if (taxQueries) {
+                for (const taxQuery of taxQueries) {
+                    if (
+                        dataValues[taxQuery.name] &&
+                        dataValues[taxQuery.name].length > 0
+                    ) {
+                        args.tax_query.push({
+                            taxonomy: taxQuery.taxonomy,
+                            field: 'slug',
+                            terms: dataValues[taxQuery.name],
+                        });
+
+                        // Add URL query parameter.
+                        urlObject[taxQuery.urlKey] = dataValues[taxQuery.name];
+                    }
                 }
             }
 
             // Handle order.
-            const orderName = config.order.name;
+            const orderName = config[postType].order.name;
             if (dataValues[orderName]) {
                 // Latest first.
                 if (dataValues[orderName] === 'newest-first') {
@@ -118,7 +120,7 @@ const filters = () => {
 
                 // Default is the newest, we don't need any order for that.
                 if (dataValues[orderName] !== 'newest-first') {
-                    urlObject[config.order.urlKey] = dataValues[orderName];
+                    urlObject[config.post.order.urlKey] = dataValues[orderName];
                 }
             }
 
@@ -132,18 +134,71 @@ const filters = () => {
                 urlObject[config.search.urlKey] =
                     dataValues[config.search.name];
             }
+        }
 
-            // Language code to show right string translations.
-            const languageCode = document.querySelector('input[name=language_code]');
-            if ( languageCode ) {
-                args.language_code = languageCode.value;
+        // Query for `page` post type.
+        if (postType === 'page') {
+            // Get data from form.
+            const formData = new FormData(filtersForm);
+            const dataValues = serializeForm(formData);
+
+            // Handle order.
+            const orderName = config[postType].order.name;
+            if (dataValues[orderName]) {
+                // Latest first.
+                if (dataValues[orderName] === 'newest-first') {
+                    args.orderby = 'date';
+                    args.order = 'DESC';
+                }
+
+                // Oldest first.
+                if (dataValues[orderName] === 'oldest-first') {
+                    args.orderby = 'date';
+                    args.order = 'ASC';
+                }
+
+                // By title asc.
+                if (dataValues[orderName] === 'title-asc') {
+                    args.orderby = 'post_title';
+                    args.order = 'ASC';
+                }
+
+                // By title desc.
+                if (dataValues[orderName] === 'title-desc') {
+                    args.orderby = 'post_title';
+                    args.order = 'DESC';
+                }
+
+                // Default is the newest, we don't need any order for that.
+                if (dataValues[orderName] !== 'title-asc') {
+                    urlObject[config.page.order.urlKey] = dataValues[orderName];
+                }
             }
 
-            // Language slug to get items only from current language.
-            const lang = document.querySelector('input[name=lang]');
-            if ( lang ) {
-                args.lang = lang.value;
+            // Reset search (args.s) before setting new one so that old value is not there.
+            args.s = '';
+
+            // Add search if there is value.
+            if (dataValues[config.search.name]) {
+                args.s = dataValues[config.search.name];
+
+                urlObject[config.search.urlKey] =
+                    dataValues[config.search.name];
             }
+        }
+
+        // Language code to show right string translations.
+        const languageCode = document.querySelector(
+            'input[name="language_code"]'
+        );
+        if (languageCode) {
+            args.language_code = languageCode.value;
+        }
+
+        // Language slug to get items only from current language.
+        const lang = document.querySelector('input[name="lang"]');
+        if (lang) {
+            args.lang = lang.value;
         }
 
         // Add page number to fetch or reset to back to 1.
@@ -199,30 +254,32 @@ const filters = () => {
         // This way we can send the link to someone else or refresh the page.
         if (Object.entries(getStateFromUrl).length > 0) {
             // Loop tax_query from config.
-            const taxQueries = config.tax_query;
-            for (const taxQuery of taxQueries) {
-                const statesFromUrl = getStateFromUrl[taxQuery.urlKey];
-                if (statesFromUrl && statesFromUrl.length > 0) {
-                    // Get all checkboxes based on name.
-                    const allTaxCheckboxes = filtersForm.querySelectorAll(
-                        `[name="${taxQuery.name}"]`
-                    );
+            const taxQueries = config[postType].tax_query;
+            if (taxQueries) {
+                for (const taxQuery of taxQueries) {
+                    const statesFromUrl = getStateFromUrl[taxQuery.urlKey];
+                    if (statesFromUrl && statesFromUrl.length > 0) {
+                        // Get all checkboxes based on name.
+                        const allTaxCheckboxes = filtersForm.querySelectorAll(
+                            `[name="${taxQuery.name}"]`
+                        );
 
-                    // Loop them over and check them if URL query parameter array includes the value.
-                    const statesFromUrlValues = statesFromUrl.split(',');
-                    allTaxCheckboxes.forEach((checkbox) => {
-                        if (statesFromUrlValues.includes(checkbox.value)) {
-                            checkbox.checked = true;
-                        }
-                    });
+                        // Loop them over and check them if URL query parameter array includes the value.
+                        const statesFromUrlValues = statesFromUrl.split(',');
+                        allTaxCheckboxes.forEach((checkbox) => {
+                            if (statesFromUrlValues.includes(checkbox.value)) {
+                                checkbox.checked = true;
+                            }
+                        });
+                    }
                 }
             }
 
             // Select correct order.
-            if (getStateFromUrl[config.order.urlKey]) {
+            if (getStateFromUrl[config[postType].order.urlKey]) {
                 const selectOrder = document.querySelector(
-                    `[name="${config.order.name}"] option[value="${
-                        getStateFromUrl[config.order.urlKey]
+                    `[name="${config[postType].order.name}"] option[value="${
+                        getStateFromUrl[config[postType].order.urlKey]
                     }"]`
                 );
 

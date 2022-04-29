@@ -13,13 +13,13 @@
         $config = function_exists( 'MEOMFilters\filters_config' ) ? MEOMFilters\filters_config() : '';
     ?>
 
-    <form class="filters__form top-margin animated" data-meom-filters="form">
+    <form class="filters__form top-margin animated" data-meom-filters="form" data-meom-filters-post-type="post">
         <input type="hidden" name="language_code" value="<?php echo esc_attr( get_locale() ); ?>">
         <?php if ( function_exists( 'pll_current_language' ) ) : ?>
-            <input type="hidden" name="lang" value="<?php echo pll_current_language(); ?>">
+            <input type="hidden" name="lang" value="<?php echo esc_attr( pll_current_language() ); ?>">
         <?php endif;
 
-        foreach ( $config['tax_query'] as $tax_filter ) :
+        foreach ( $config['post']['tax_query'] as $tax_filter ) :
             // Get terms.
             $filter_terms = get_terms(
                 array(
@@ -62,8 +62,8 @@
         <input class="filters__search-field" type="search" id="filters-search" name="<?php echo esc_attr( $config['search']['name'] ); ?>" data-meom-filters="search">
 
         <label for="filters-order" class="filter__label"><?php esc_html_e( 'Order by', 'meom-filters' ); ?></label>
-        <select class="filters__order" id="filters-order" data-meom-filters="order" name="<?php echo esc_attr( $config['order']['name'] ); ?>">
-            <?php foreach ( $config['order']['options'] as $option ) : ?>
+        <select class="filters__order" id="filters-order" data-meom-filters="order" name="<?php echo esc_attr( $config['post']['order']['name'] ); ?>">
+            <?php foreach ( $config['post']['order']['options'] as $option ) : ?>
                 <option value="<?php echo esc_attr( $option['value'] ); ?>"><?php echo esc_html( $option['label'] ); ?></option>
             <?php endforeach; ?>
         </select>
