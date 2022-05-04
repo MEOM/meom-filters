@@ -1,14 +1,11 @@
-/* global history, location, FormData */
+/* global history */
 /* eslint-disable @wordpress/no-unused-vars-before-return */
 
 /* Import external depedencies. */
 import { getQueryArgs } from '@wordpress/url';
 
 /* Import internal depedencies. */
-import buildQueryString from './helpers/buildQueryString';
-import fetchPosts from './helpers/fetchPosts';
-import showSelectedFilters from './helpers/showSelectedFilters';
-import serializeForm from './helpers/serializeForm';
+import handleFetch from './helpers/handleFetch';
 import config from './../../filters-config.json';
 
 /**
@@ -39,7 +36,7 @@ const filters = () => {
     };
 
     // Let's pick what we put in to the URL.
-    let urlObject = {};
+    const urlObject = {};
 
     // Add default state for history.
     const stateFromUrl = getQueryArgs(document.location.href);
@@ -53,219 +50,13 @@ const filters = () => {
     }
 
     /**
-     * Handle fetching data.
-     *
-     * @param {boolean} append Append to markup or not.
-     */
-    function handleFetch(append = false) {
-        // Reset filter state at first.
-        args.tax_query = [];
-        args.meta_query = [];
-
-        // Reset urlObject first.
-        urlObject = {};
-
-        // Query for `post` post type.
-        if (postType === 'post') {
-            // Get data from form.
-            const formData = new FormData(filtersForm);
-            const dataValues = serializeForm(formData);
-
-            // Loop tax_query from config.
-            const taxQueries = config[postType].tax_query;
-
-            if (taxQueries) {
-                for (const taxQuery of taxQueries) {
-                    if (
-                        dataValues[taxQuery.name] &&
-                        dataValues[taxQuery.name].length > 0
-                    ) {
-                        args.tax_query.push({
-                            taxonomy: taxQuery.taxonomy,
-                            field: 'slug',
-                            terms: dataValues[taxQuery.name],
-                        });
-
-                        // Add URL query parameter.
-                        urlObject[taxQuery.urlKey] = dataValues[taxQuery.name];
-                    }
-                }
-            }
-
-            // Handle order.
-            const orderName = config[postType].order.name;
-            if (dataValues[orderName]) {
-                // Latest first.
-                if (dataValues[orderName] === 'newest-first') {
-                    args.orderby = 'date';
-                    args.order = 'DESC';
-                }
-
-                // Oldest first.
-                if (dataValues[orderName] === 'oldest-first') {
-                    args.orderby = 'date';
-                    args.order = 'ASC';
-                }
-
-                // By title asc.
-                if (dataValues[orderName] === 'title-asc') {
-                    args.orderby = 'post_title';
-                    args.order = 'ASC';
-                }
-
-                // By title desc.
-                if (dataValues[orderName] === 'title-desc') {
-                    args.orderby = 'post_title';
-                    args.order = 'DESC';
-                }
-
-                // Default is the newest, we don't need any order for that.
-                if (dataValues[orderName] !== 'newest-first') {
-                    urlObject[config.post.order.urlKey] = dataValues[orderName];
-                }
-            }
-
-            // Reset search (args.s) before setting new one so that old value is not there.
-            args.s = '';
-
-            // Add search if there is value.
-            if (dataValues[config.search.name]) {
-                args.s = dataValues[config.search.name];
-
-                urlObject[config.search.urlKey] =
-                    dataValues[config.search.name];
-            }
-        }
-
-        // Query for `page` post type.
-        if (postType === 'page') {
-            // Get data from form.
-            const formData = new FormData(filtersForm);
-            const dataValues = serializeForm(formData);
-
-            // Handle order.
-            const orderName = config[postType].order.name;
-            if (dataValues[orderName]) {
-                // Latest first.
-                if (dataValues[orderName] === 'newest-first') {
-                    args.orderby = 'date';
-                    args.order = 'DESC';
-                }
-
-                // Oldest first.
-                if (dataValues[orderName] === 'oldest-first') {
-                    args.orderby = 'date';
-                    args.order = 'ASC';
-                }
-
-                // By title asc.
-                if (dataValues[orderName] === 'title-asc') {
-                    args.orderby = 'post_title';
-                    args.order = 'ASC';
-                }
-
-                // By title desc.
-                if (dataValues[orderName] === 'title-desc') {
-                    args.orderby = 'post_title';
-                    args.order = 'DESC';
-                }
-
-                // Default is the newest, we don't need any order for that.
-                if (dataValues[orderName] !== 'title-asc') {
-                    urlObject[config.page.order.urlKey] = dataValues[orderName];
-                }
-            }
-
-            // Reset search (args.s) before setting new one so that old value is not there.
-            args.s = '';
-
-            // Add search if there is value.
-            if (dataValues[config.search.name]) {
-                args.s = dataValues[config.search.name];
-
-                urlObject[config.search.urlKey] =
-                    dataValues[config.search.name];
-            }
-        }
-
-        // Language code to show right string translations.
-        const languageCode = document.querySelector(
-            'input[name="language_code"]'
-        );
-        if (languageCode) {
-            args.language_code = languageCode.value;
-        }
-
-        // Language slug to get items only from current language.
-        const lang = document.querySelector('input[name="lang"]');
-        if (lang) {
-            args.lang = lang.value;
-        }
-
-        // Add page number to fetch or reset to back to 1.
-        if (append) {
-            args.paged = 1 + args.paged;
-        } else {
-            args.paged = 1;
-        }
-
-        // Fetch posts based on args.
-        fetchPosts(args, append, filtersForm);
-
-        showSelectedFilters(args);
-
-        // Build query string if we have urlObject. Else remove query string from the URL.
-        const updatedUrl =
-            Object.entries(urlObject).length > 0
-                ? '?' + buildQueryString(urlObject)
-                : `${location.protocol}//${location.host}${location.pathname}`;
-
-        // Add state to the history and update URL.
-        history.pushState(args, document.title, updatedUrl);
-    }
-
-    /**
      * Handle changes on form.
      *
      * @param {Object} event Event object.
      */
     function handleChange(event) {
         event.preventDefault();
-        handleFetch(false);
-    }
-
-    /**
-     * Handle selected filter button click.
-     *
-     * @param {Object} event
-     */
-    function handleSelectedFilters(event) {
-        const target = event.target;
-        // Use .closest because there can be SVG inside the button.
-        const removeFilterButton = target.closest(
-            '[data-meom-filters="remove-filter"]'
-        );
-
-        // If the clicked element doesn't have the correct data attribute, bail.
-        if (!removeFilterButton) {
-            return;
-        }
-
-        const key = removeFilterButton.getAttribute('data-meom-filters-key');
-        const value = removeFilterButton.getAttribute(
-            'data-meom-filters-value'
-        );
-
-        const selectedFilter = document.querySelector(
-            'input[data-meom-filters="' + key + '"][value="' + value + '"]'
-        );
-
-        if (selectedFilter) {
-            selectedFilter.checked = false;
-
-            // Do the fetch.
-            handleFetch(false);
-        }
+        handleFetch(false, args, urlObject, postType, filtersForm, config);
     }
 
     /**
@@ -274,7 +65,7 @@ const filters = () => {
      */
     function handleLoadMore() {
         // Do the fetch and append to existing posts.
-        handleFetch(true);
+        handleFetch(true, args, urlObject, postType, filtersForm, config);
     }
 
     /**
@@ -338,15 +129,12 @@ const filters = () => {
         }
 
         // Do the fetch.
-        handleFetch(false);
+        handleFetch(false, args, urlObject, postType, filtersForm, config);
     }
 
     // Listen change and submit events on filters form.
     filtersForm.addEventListener('change', handleChange, false);
     filtersForm.addEventListener('submit', handleChange, false);
-
-    // Listen remove filter chips click.
-    document.addEventListener('click', handleSelectedFilters, false);
 
     // Listen load more clicks.
     if (loadMore) {

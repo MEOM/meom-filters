@@ -1,11 +1,24 @@
 import selectedFilterButton from './selectedFilterButton';
+import handleFetch from './handleFetch';
 
 /**
  * Show selected filters.
  *
- * @param {Object} args Fetch arguments.
+ * @param {boolean} append      Append to markup or not.
+ * @param {Object}  args        Arguments.
+ * @param {Object}  urlObject   URL object, what to show in URL.
+ * @param {string}  postType    Which post type.
+ * @param {Object}  filtersForm Which form.
+ * @param {Object}  config      JSON-config for filters.
  */
-function showSelectedFilters(args) {
+function showSelectedFilters(
+    append = false,
+    args,
+    urlObject,
+    postType,
+    filtersForm,
+    config
+) {
     // Where to populate the selected items.
     const filtersSelected = document.querySelector(
         '[data-meom-filters="selected"]'
@@ -48,6 +61,43 @@ function showSelectedFilters(args) {
             }
         }
     }
+
+    /**
+     * Handle selected filter button click.
+     *
+     * @param {Object} event
+     */
+    function handleSelectedFilters(event) {
+        const target = event.target;
+        // Use .closest because there can be SVG inside the button.
+        const removeFilterButton = target.closest(
+            '[data-meom-filters="remove-filter"]'
+        );
+
+        // If the clicked element doesn't have the correct data attribute, bail.
+        if (!removeFilterButton) {
+            return;
+        }
+
+        const key = removeFilterButton.getAttribute('data-meom-filters-key');
+        const value = removeFilterButton.getAttribute(
+            'data-meom-filters-value'
+        );
+
+        const selectedFilter = document.querySelector(
+            'input[data-meom-filters="' + key + '"][value="' + value + '"]'
+        );
+
+        if (selectedFilter) {
+            selectedFilter.checked = false;
+
+            // Do the fetch.
+            handleFetch(append, args, urlObject, postType, filtersForm, config);
+        }
+    }
+
+    // Listen remove filter chips click.
+    document.addEventListener('click', handleSelectedFilters, false);
 }
 
 export default showSelectedFilters;
