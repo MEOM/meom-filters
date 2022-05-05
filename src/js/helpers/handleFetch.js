@@ -178,12 +178,13 @@ function handleFetch(
     // By clicking them it will remove that filter.
     showSelectedFilters(append, args, urlObject, postType, filtersForm, config);
 
-    // Add state to the history and update URL.
+    // Build query string if we have urlObject. Else remove query string from the URL.
     const updatedUrl =
         Object.entries(urlObject).length > 0
             ? '?' + buildQueryString(urlObject)
             : `${location.protocol}//${location.host}${location.pathname}`;
 
+    // Add state to the history and update URL.
     history.replaceState(args, document.title, updatedUrl);
 }
 
