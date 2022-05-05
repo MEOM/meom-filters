@@ -179,11 +179,6 @@ function handleFetch(
     showSelectedFilters(append, args, urlObject, postType, filtersForm, config);
 
     // Add state to the history and update URL.
-    if (Object.entries(urlObject).length > 0) {
-        //const updatedUrl = '?' + buildQueryString(urlObject);
-        //history.replaceState(args, document.title, updatedUrl);
-    }
-
     const updatedUrl =
         Object.entries(urlObject).length > 0
             ? '?' + buildQueryString(urlObject)
