@@ -1,4 +1,4 @@
-/* global history, location, FormData */
+/* global history, FormData */
 
 /* Import internal depedencies. */
 import buildQueryString from './buildQueryString';
@@ -178,14 +178,11 @@ function handleFetch(
     // By clicking them it will remove that filter.
     showSelectedFilters(append, args, urlObject, postType, filtersForm, config);
 
-    // Build query string if we have urlObject. Else remove query string from the URL.
-    const updatedUrl =
-        Object.entries(urlObject).length > 0
-            ? '?' + buildQueryString(urlObject)
-            : `${location.protocol}//${location.host}${location.pathname}`;
-
     // Add state to the history and update URL.
-    history.pushState(args, document.title, updatedUrl);
+    if (Object.entries(urlObject).length > 0) {
+        const updatedUrl = '?' + buildQueryString(urlObject);
+        history.replaceState(args, document.title, updatedUrl);
+    }
 }
 
 export default handleFetch;

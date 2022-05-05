@@ -1,4 +1,3 @@
-/* global history */
 /* eslint-disable @wordpress/no-unused-vars-before-return */
 
 /* Import external depedencies. */
@@ -38,24 +37,10 @@ const filters = () => {
     // Let's pick what we put in to the URL.
     const urlObject = {};
 
-    // Add default state for history.
-    const stateFromUrl = getQueryArgs(document.location.href);
-
-    if (Object.entries(stateFromUrl).length > 0) {
-        history.replaceState(
-            stateFromUrl,
-            document.title,
-            document.location.href
-        );
-    }
-
     /**
      * Handle changes on form.
-     *
-     * @param {Object} event Event object.
      */
-    function handleChange(event) {
-        event.preventDefault();
+    function handleChange() {
         handleFetch(false, args, urlObject, postType, filtersForm, config);
     }
 
