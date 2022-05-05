@@ -41,7 +41,8 @@
                                 type="checkbox"
                                 id="filter-tax-<?php echo esc_attr( $tax_filter['taxonomy'] ); ?>-<?php echo esc_attr( $filter_term->slug ); ?>"
                                 value="<?php echo esc_attr( $filter_term->slug ); ?>"
-                                data-meom-filters="tax-<?php echo esc_attr( $tax_filter['taxonomy'] ); ?>"
+                                data-meom-filters="<?php echo esc_attr( $tax_filter['taxonomy'] ); ?>"
+                                data-meom-filters-label="<?php echo esc_attr( $filter_term->name ); ?>"
                                 name="<?php echo esc_attr( $tax_filter['name'] ); ?>"
                                 >
                             <label class="filters__tax-label" for="filter-tax-<?php echo esc_attr( $tax_filter['taxonomy'] ); ?>-<?php echo esc_attr( $filter_term->slug ); ?>">
@@ -72,6 +73,8 @@
             <?php esc_attr_e( 'Show results', 'meom-filters' ); ?><span class="filters__submit-count" data-meom-filters="submit-count"> (4)</span>
         </button>
     </form>
+
+    <div class="filters__selected" data-meom-filters="selected"></div>
 </div>
 
 <div class="filters-items top-margin" data-meom-filters="items">

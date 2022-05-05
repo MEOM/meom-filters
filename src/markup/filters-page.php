@@ -35,6 +35,8 @@
             <?php esc_attr_e( 'Show results', 'meom-filters' ); ?><span class="filters__submit-count" data-meom-filters="submit-count"> (4)</span>
         </button>
     </form>
+
+    <div class="filters__selected" data-meom-filters="selected"></div>
 </div>
 
 <div class="filters-items top-margin" data-meom-filters="items">
