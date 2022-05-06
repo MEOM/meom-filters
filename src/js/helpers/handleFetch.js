@@ -1,4 +1,4 @@
-/* global history, location, FormData */
+/* global history, FormData, location */
 
 /* Import internal depedencies. */
 import buildQueryString from './buildQueryString';
@@ -185,7 +185,7 @@ function handleFetch(
             : `${location.protocol}//${location.host}${location.pathname}`;
 
     // Add state to the history and update URL.
-    history.pushState(args, document.title, updatedUrl);
+    history.replaceState(args, document.title, updatedUrl);
 }
 
 export default handleFetch;
