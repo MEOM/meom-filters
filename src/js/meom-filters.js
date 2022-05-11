@@ -39,8 +39,11 @@ const filters = () => {
 
     /**
      * Handle changes on form.
+     *
+     * @param {Object} event Event object.
      */
-    function handleChange() {
+    function handleChange(event) {
+        event.preventDefault();
         handleFetch(false, args, urlObject, postType, filtersForm, config);
     }
 
