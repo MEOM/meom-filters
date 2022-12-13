@@ -17,7 +17,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Load text domain.
 function meom_filters_i18n() {
-    load_muplugin_textdomain( 'meom-filters', trailingslashit( dirname( plugin_basename( __FILE__ ) ) ) . 'languages' );
+    load_plugin_textdomain(
+        'meom-filters',
+        false,
+        basename( dirname( __FILE__ ) ) . '/languages'
+    );
 }
 add_action( 'plugins_loaded', 'meom_filters_i18n', 2 );
 
